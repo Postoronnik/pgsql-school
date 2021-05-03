@@ -1,0 +1,51 @@
+version: "3"
+services:
+
+  # APP*****************************************
+  school-app:
+    image: school:latest
+    network_mode: bridge
+    container_name: school-app
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    depends_on:
+      - pg-master
+      - pg-test
+    links:
+      - pg-master
+      - pg-test
+    stdin_open: true
+    tty: true
+
+  # DB*****************************************
+  pg-test:
+    image: postgres:latest
+    network_mode: bridge
+    container_name: pg-test
+    ports:
+      - 5430:5432
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=university
+    restart: unless-stopped
+
+  pg-master:
+    image: postgres:latest
+    network_mode: bridge
+    container_name: pg-master
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=university
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
